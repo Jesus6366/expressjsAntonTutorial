@@ -10,15 +10,22 @@ const mockUsers = [
   { id: 3, username: "noa", displayname: "Noa" },
 ];
 
-// routes / enpoints
-
+// Routes / Enpoints
 // Define a basic route
 app.get("/", (req, res) => {
   res.status(201).send("Hello world");
 });
 
 app.get("/api/users", (req, res) => {
-  res.status(200).json();
+  console.log(req.query);
+  const {
+    query: { filter, value },
+  } = req;
+
+  if (!filter && !value) res.json(mockUsers);
+
+  if (filter && value)
+    res.json(mockUsers.filter((user) => user[filter].includes(value)));
 });
 
 app.get("/api/users/:id", (req, res) => {
@@ -33,14 +40,14 @@ app.get("/api/users/:id", (req, res) => {
     return res.status(404).json({ error: "User not found" });
   }
 
-  console.log(user);
-
   res.status(200).json(user);
 });
 
 app.get("/api/products", (req, res) => {
   res.status(200).json([{ id: 1, name: "Chicke leg", price: 1.2 }]);
 });
+
+// Query params
 
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
