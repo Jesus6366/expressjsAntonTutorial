@@ -8,6 +8,31 @@ const PORT = process.env.PORT;
 // parse json
 app.use(express.json());
 
+const loggingMiddleware = (req, res, next) => {
+  next();
+};
+
+app.use(loggingMiddleware);
+
+const resolveIndexByUserId = (req, res, next) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+
+  const parsedId = parseInt(id);
+  if (isNaN(parsedId)) return res.sendStatus(400);
+
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) {
+    return res.sendStatus(404);
+  }
+
+  req.findUserIndex = findUserIndex;
+  next();
+};
+
 const mockUsers = [
   { id: 1, username: "anson", displayname: "Anson" },
   { id: 2, username: "jack", displayname: "Jack" },
@@ -60,40 +85,15 @@ app.get("/api/products", (req, res) => {
   res.status(200).json([{ id: 1, name: "Chicke leg", price: 1.2 }]);
 });
 
-app.put("/api/users/:id", (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
-
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.sendStatus(400);
-
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
-
-  mockUsers[findUserIndex] = { id: parsedId, ...body };
+app.put("/api/users/:id", resolveIndexByUserId, (req, res) => {
+  const { body, findUserIndex } = req;
+  mockUsers[findUserIndex] = { id: mockUsers[findUserIndex].id, ...body };
 
   return res.sendStatus(200);
 });
 
-app.patch("/api/users/:id", (req, res) => {
-  const {
-    body,
-    params: { id },
-  } = req;
-
-  const parsedId = parseInt(id);
-  if (isNaN(parsedId)) return res.sendStatus(400);
-
-  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
-
-  if (findUserIndex === -1) {
-    return res.sendStatus(404);
-  }
+app.patch("/api/users/:id", resolveIndexByUserId, (req, res) => {
+  const { body, findUserIndex } = req;
 
   mockUsers[findUserIndex] = { ...mockUsers[findUserIndex], ...body };
 
