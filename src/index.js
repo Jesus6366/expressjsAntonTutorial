@@ -4,6 +4,10 @@ const app = express(); // Create an Express application
 
 const PORT = process.env.PORT;
 
+//middlewares
+// parse json
+app.use(express.json());
+
 const mockUsers = [
   { id: 1, username: "anson", displayname: "Anson" },
   { id: 2, username: "jack", displayname: "Jack" },
@@ -22,10 +26,19 @@ app.get("/api/users", (req, res) => {
     query: { filter, value },
   } = req;
 
-  if (!filter && !value) res.json(mockUsers);
-
   if (filter && value)
     res.json(mockUsers.filter((user) => user[filter].includes(value)));
+
+  return res.json(mockUsers);
+});
+
+app.post("/api/users", (req, res) => {
+  const body = req.body;
+  body.id = mockUsers.length + 1;
+  mockUsers.push(body);
+  console.log(body);
+
+  return res.json(mockUsers).status(201);
 });
 
 app.get("/api/users/:id", (req, res) => {
