@@ -100,6 +100,27 @@ app.patch("/api/users/:id", (req, res) => {
   return res.sendStatus(200);
 });
 
+app.delete("/api/users/:id", (req, res) => {
+  const {
+    body,
+    params: { id },
+  } = req;
+
+  const parsedId = parseInt(id);
+
+  if (isNaN(parsedId)) return res.sendStatus(400);
+
+  const findUserIndex = mockUsers.findIndex((user) => user.id === parsedId);
+
+  if (findUserIndex === -1) {
+    return res.sendStatus(404);
+  }
+
+  mockUsers.splice(findUserIndex, 1);
+
+  return res.sendStatus(200);
+});
+
 // Start the server and listen on the specified port
 app.listen(PORT, () => {
   console.log(`server running on port ${PORT}`);
