@@ -1,5 +1,6 @@
 import express from "express";
 import usersRouter from "./routes/users.js";
+import productsRouter from "./routes/products.js";
 
 const app = express(); // Create an Express application
 
@@ -9,6 +10,7 @@ const PORT = process.env.PORT;
 // parse json
 app.use(express.json());
 app.use(usersRouter);
+app.use(productsRouter);
 
 const loggingMiddleware = (req, res, next) => {
   next();
@@ -20,10 +22,6 @@ app.use(loggingMiddleware);
 // Define a basic route
 app.get("/", (req, res) => {
   res.status(201).send("Hello world");
-});
-
-app.get("/api/products", (req, res) => {
-  res.status(200).json([{ id: 1, name: "Chicke leg", price: 1.2 }]);
 });
 
 // Start the server and listen on the specified port
